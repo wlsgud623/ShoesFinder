@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -36,6 +37,7 @@ public class SearchFragment extends Fragment {
     View window;
     FirebaseFirestore db;
     CollectionReference collectionReference;
+    DocumentReference documentReference;
 
     public SearchFragment() {
         // Required empty public constructor
@@ -82,15 +84,15 @@ public class SearchFragment extends Fragment {
            public boolean onQueryTextSubmit(String s) {
                searchAdapter.empty();
                db = FirebaseFirestore.getInstance();
-               db.collection("shose").whereArrayContains("color",s).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                collectionReference = db.collection("shose");;
+                collectionReference.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                    @Override
                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
                        if(task.isSuccessful()){
                            for(QueryDocumentSnapshot document : task.getResult()){
                                Log.d("check", "shoese" + document.get("name"));
                                searchAdapter.addItem(new shoes(document.get("name").toString(), document.get("brand").toString(), document.get("image").toString(), Integer.parseInt(document.get("price").toString())));
-                               searchAdapter.notifyDataSetChanged();
-                           }
+                               searchAdapter.notifyDataSetChanged();}
                        }
                        else{
                            Toast.makeText(getActivity(), "Network DB Error!",Toast.LENGTH_SHORT).show();
