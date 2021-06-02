@@ -16,12 +16,41 @@
             <include
                 android:id="@+id/CurrentUser"
                 layout="@layout/main_user" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/RealRealWhite"
+                android:fontFamily="@font/nanumbarungothicbold"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="15dp"
+                android:textSize="30dp"
+                android:background="@drawable/black_gradation3"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="30dp"
+                android:text="  다른 사용자들의 선택"/>
+
             <include
-                android:id="@+id/RecforUser"
-                layout="@layout/user_log_rec"/>
+                android:id="@+id/userlog"
+                layout="@layout/multiple_shoes_icon"/>
+
+            <TextView
+                android:layout_marginTop="30dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/RealRealWhite"
+                android:fontFamily="@font/nanumbarungothicbold"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="15dp"
+                android:textSize="30dp"
+                android:background="@drawable/black_gradation3"
+                android:layout_marginBottom="30dp"
+                android:text="  내가 본 상품"/>
             <include
-                android:id="@+id/RecforDay"
-                layout="@layout/user_cate_rec"/>
+                android:id="@+id/mylog"
+                layout="@layout/multiple_shoes_icon"/>
+
+
+
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

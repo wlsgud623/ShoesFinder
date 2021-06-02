@@ -1,6 +1,7 @@
 package com.example.shoesfinder;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,6 +40,7 @@ public class SearchAdapter extends BaseAdapter {
     public long getItemId(int i) {
         return i;
     }
+
     public void addItem(shoes shoe){
         list.add(shoe);
     }
@@ -62,11 +64,20 @@ public class SearchAdapter extends BaseAdapter {
         String name =  shoe.getName();
         int price = shoe.getPrice();
         String url = shoe.getUrl();
+        String doc = shoe.getDocument();
 
         viewHolder.shoes_name.setText(name);
-        viewHolder.shoese_price.setText(Integer.toString(price) + " ￦");
+        viewHolder.shoese_price.setText(Integer.toString(price) + " 만원 대");
         Glide.with(context).load(url).override(50,50).into(viewHolder.shoes_image);
-        //Picasso.get().load(url).resize(120,120).centerCrop().into(viewHolder.shoes_image);
+
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(context, EachActivity.class);
+                intent.putExtra("document", doc);
+                context.startActivity(intent);
+            }
+        });
 
         return view;
     }

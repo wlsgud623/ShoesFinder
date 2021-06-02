@@ -16,6 +16,8 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -26,14 +28,16 @@ public class ResultActivity extends AppCompatActivity {
     Bitmap br;
     ImageView img, img_res;
     View resulteview, similar_shoes, resultText;
+    FirebaseFirestore db;
+    DocumentReference doc;
     View ss, ts, fs;
     TextView fb, fp;
     TextView sst, tst, fst;
+    TextView second_price, third_price, fourth_price;
     ImageView sp, tp, fop;
     String[] barr, parr;
     String url;
 
-    FirebaseFirestore db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,6 +45,8 @@ public class ResultActivity extends AppCompatActivity {
         Intent intent = getIntent();
         byte[] arr = intent.getByteArrayExtra("PhotoforSearch");
         br = BitmapFactory.decodeByteArray(arr,0, arr.length);
+        db = FirebaseFirestore.getInstance();
+
 
         resulteview = (View) findViewById(R.id.picture_result);
         similar_shoes = (View) findViewById(R.id.similar_shoes);
@@ -53,6 +59,10 @@ public class ResultActivity extends AppCompatActivity {
         sst = (TextView)ss.findViewById(R.id.Shoes_Name);
         tst = (TextView)ts.findViewById(R.id.Shoes_Name);
         fst = (TextView)fs.findViewById(R.id.Shoes_Name);
+
+        second_price = (TextView)ss.findViewById(R.id.Shows_Price);
+        third_price = (TextView)ts.findViewById(R.id.Shows_Price);
+        fourth_price = (TextView)fs.findViewById(R.id.Shows_Price);
 
         sp = (ImageView)ss.findViewById(R.id.Shoes_Photo);
         tp = (ImageView)ts.findViewById(R.id.Shoes_Photo);
@@ -73,24 +83,82 @@ public class ResultActivity extends AppCompatActivity {
         fb = (TextView)resultText.findViewById(R.id.result_shoes_name);
         fp = (TextView)resultText.findViewById(R.id.result_shoes_percent);
 
-        fb.setText(barr[0]);
-        fp.setText(parr[0] + "%");
+        doc = db.collection("shose").document(barr[0]);
+        doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()){
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    fb.setText(documentSnapshot.get("name").toString());
+                    Glide.with(ResultActivity.this).load(documentSnapshot.get("image").toString()).override(160,200).into(img_res);
+                }
+            }
+        });
+        fp.setText(parr[0] + "% 일치");
+        doc = db.collection("shose").document(barr[1]);
+        doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()){
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    sst.setText(documentSnapshot.get("name").toString());
+                    second_price.setText(documentSnapshot.get("price").toString() + " 만원");
+                    Glide.with(ResultActivity.this).load(documentSnapshot.get("image").toString()).override(160,200).into(sp);
+                }
+            }
+        });
 
-        String url = "https://firebasestorage.googleapis.com/v0/b/shoes-finder-project.appspot.com/o/Shose_Image%2F%EC%BB%A8%EB%B2%84%EC%8A%A4%20%EC%B2%99%ED%85%8C%EC%9D%BC%EB%9F%AC%20%EB%AC%B4%EB%B8%8C%20%ED%95%98%EC%9D%B4.jpg?alt=media&token=5fa688ae-0b92-45bd-b841-c7a05c962d81";
-        Glide.with(this).load(url).override(160,200).into(img_res);
+        doc = db.collection("shose").document(barr[2]);
+        doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()){
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    tst.setText(documentSnapshot.get("name").toString());
+                    third_price.setText(documentSnapshot.get("price").toString() + " 만원");
+                    Glide.with(ResultActivity.this).load(documentSnapshot.get("image").toString()).override(160,200).into(tp);
+                }
+            }
+        });
 
+        doc = db.collection("shose").document(barr[3]);
+        doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()){
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    fst.setText(documentSnapshot.get("name").toString());
+                    fourth_price.setText(documentSnapshot.get("price").toString() + " 만원");
+                    Glide.with(ResultActivity.this).load(documentSnapshot.get("image").toString()).override(160,200).into(fop);
+                }
+            }
+        });
 
+        ss.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ResultActivity.this, EachActivity.class);
+                intent.putExtra("document", barr[1]);
+                startActivity(intent);
+            }
+        });
 
+        ts.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ResultActivity.this, EachActivity.class);
+                intent.putExtra("document", barr[2]);
+                startActivity(intent);
+            }
+        });
 
-
-        //fp = (TextView) resulteview.findViewById(R.id.first_percent);
-        //fp.setText(parr + " %");
-
-        //sst.setText(barr[1]);
-        //sst.setTextSize(15);
-        //tst.setText(barr[2]);
-        //tst.setTextSize(15);
-        //fst.setText(barr[3]);
-        //fst.setTextSize(15);
+        fs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ResultActivity.this, EachActivity.class);
+                intent.putExtra("document", barr[3]);
+                startActivity(intent);
+            }
+        });
     }
 }

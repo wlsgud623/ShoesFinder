@@ -12,11 +12,13 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity{
 
+
     Fragment CameraF;
     Fragment HomeF;
     Fragment SearchF;
     Fragment ListF;
     BottomNavigationView navView;
+    public static String id;
 
 
     private BottomNavigationView.OnNavigationItemSelectedListener bottomListner = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -60,5 +62,12 @@ public class MainActivity extends AppCompatActivity{
         getSupportFragmentManager().beginTransaction().replace(R.id.main_layout,HomeF).commit();
     }
 
+    public void setId(String id){
+        this.id = id;
+    }
+
+    public String getId(){
+        return id;
+    }
 
 }

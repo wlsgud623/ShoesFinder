@@ -15,23 +15,28 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PhotoActivity extends AppCompatActivity {
     Bitmap bm;
@@ -56,6 +61,7 @@ public class PhotoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_photo);
         Intent intent = getIntent();
 
+
         byte[] arr = intent.getByteArrayExtra("PhotoforSearch");
         bm = BitmapFactory.decodeByteArray(arr,0, arr.length);
         img = (ImageView)findViewById(R.id.Photoview);
@@ -64,7 +70,7 @@ public class PhotoActivity extends AppCompatActivity {
         bb = (Button) findViewById(R.id.Backbutton);
         sb = (Button) findViewById(R.id.SearchButton);
         queue = Volley.newRequestQueue(this);
-        String url = "http://10.0.2.2:5000/check";
+        String url = "http://192.168.35.59:5000/check";
 
 
         bb.setOnClickListener(new View.OnClickListener() {
@@ -82,16 +88,15 @@ public class PhotoActivity extends AppCompatActivity {
                 dialog.show();
 
                 String encodedimage = getStringFromBitmap(bm);
-                JSONObject jso = new JSONObject();
-                try {
-                    jso.put("bitarray",encodedimage);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                Map<String, String> params = new HashMap();
+                params.put("bitarray", encodedimage);
+
+                JSONObject jso = new JSONObject(params);
 
                 final JsonObjectRequest jsonobject = new JsonObjectRequest(Request.Method.POST, url, jso, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
+                        Log.d("post", response+"");
                         ByteArrayOutputStream stream = new ByteArrayOutputStream();
                         String[] brands = new String[0];
                         String[] percents = new String[0];
@@ -110,12 +115,13 @@ public class PhotoActivity extends AppCompatActivity {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        bm.compress(Bitmap.CompressFormat.JPEG, 30, stream);
+                        bm.compress(Bitmap.CompressFormat.JPEG, 40, stream);
                         byte[] Bytearray = stream.toByteArray();
                         Intent intent = new Intent(PhotoActivity.this, ResultActivity.class);
                         intent.putExtra("PhotoforSearch", Bytearray);
                         intent.putExtra("Brandarr", brands);
                         intent.putExtra("Percent", percents);
+                        dialog.cancel();
                         startActivity(intent);
                     }
                 }, new Response.ErrorListener() {
@@ -126,6 +132,8 @@ public class PhotoActivity extends AppCompatActivity {
 
                     }
                 });
+
+                jsonobject.setRetryPolicy(new DefaultRetryPolicy(10000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
                 queue.add(jsonobject);
 
             }

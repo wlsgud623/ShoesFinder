@@ -1,6 +1,7 @@
 package com.example.shoesfinder;
 
 public class shoes {
+    String document;
     String name;
     String brand;
     String[] colors;
@@ -8,7 +9,8 @@ public class shoes {
     int price;
 
 
-    public shoes(String name, String brand, String[] colors, String url, int price){
+    public shoes(String document, String name, String brand, String[] colors, String url, int price){
+        this.document = document;
         this.name = name;
         this.brand = brand;
         this.colors = colors;
@@ -16,11 +18,20 @@ public class shoes {
         this.price =  price;
     }
 
-    public shoes(String name, String brand, String url, int price){
+    public shoes(String document, String name, String brand, String url, int price){
+        this.document = document;
         this.name = name;
         this.brand = brand;
         this.url = url;
         this.price =  price;
+    }
+
+    public String getDocument(){
+        return document;
+    }
+
+    public void setDocument(String document){
+        this.document = document;
     }
 
     public String getName(){

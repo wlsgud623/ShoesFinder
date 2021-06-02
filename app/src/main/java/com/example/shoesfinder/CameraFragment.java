@@ -70,7 +70,7 @@ public class CameraFragment extends Fragment {
             if (resultCode == Activity.RESULT_OK) {
                 Bitmap bp = (Bitmap) data.getExtras().get("data");
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bp.compress(Bitmap.CompressFormat.JPEG,50,stream);
+                bp.compress(Bitmap.CompressFormat.JPEG,80,stream);
                 byte[] Bytearray = stream.toByteArray();
                 Intent intent = new Intent(getActivity(), PhotoActivity.class);
                 intent.putExtra("PhotoforSearch",Bytearray);

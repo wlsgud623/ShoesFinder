@@ -15,25 +15,27 @@ import android.widget.Toast;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.GoogleApi;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity  {
 
         Button join;
         Button login;
         SignInButton glogin;
         private EditText email_login;
         private EditText pwd_login;
-        FirebaseAuth firebaseAuth;
+        private FirebaseAuth firebaseAuth;
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_login);
+
             login = (Button) findViewById(R.id.log_in_button);
             join = (Button) findViewById(R.id.sign_button);
 

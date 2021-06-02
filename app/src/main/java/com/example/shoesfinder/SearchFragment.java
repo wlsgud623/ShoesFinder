@@ -17,6 +17,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -79,27 +80,35 @@ public class SearchFragment extends Fragment {
        window = view.findViewById(R.id.searchwin);
 
        searchView = (SearchView) window.findViewById(R.id.search_window);
+
+       searchView.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View view) {
+               searchView.setIconified(false);
+           }
+       });
+
        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
            @Override
            public boolean onQueryTextSubmit(String s) {
                searchAdapter.empty();
                db = FirebaseFirestore.getInstance();
-                collectionReference = db.collection("shose");;
-                collectionReference.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+               collectionReference = db.collection("shose");
+               collectionReference.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                    @Override
                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                       searchAdapter.empty();
+                       searchAdapter.notifyDataSetChanged();
                        if(task.isSuccessful()){
-                           for(QueryDocumentSnapshot document : task.getResult()){
-                               Log.d("check", "shoese" + document.get("name"));
-                               searchAdapter.addItem(new shoes(document.get("name").toString(), document.get("brand").toString(), document.get("image").toString(), Integer.parseInt(document.get("price").toString())));
-                               searchAdapter.notifyDataSetChanged();}
+                           for(DocumentSnapshot documentSnapshot : task.getResult()){
+                               if(documentSnapshot.get("name").toString().contains(s) || documentSnapshot.get("color").toString().contains(s) || documentSnapshot.get("brand").toString().contains(s)){
+                                   searchAdapter.addItem(new shoes(documentSnapshot.getId(), documentSnapshot.get("name").toString(), documentSnapshot.get("brand").toString(), documentSnapshot.get("image").toString(), Integer.parseInt(documentSnapshot.get("price").toString())));
+                                   searchAdapter.notifyDataSetChanged();}
+                               }
+                           }
                        }
-                       else{
-                           Toast.makeText(getActivity(), "Network DB Error!",Toast.LENGTH_SHORT).show();
-                       }
-                   }
                });
-               return false;
+               return true;
            }
 
            @Override

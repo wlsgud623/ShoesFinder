@@ -1,5 +1,6 @@
 package com.example.shoesfinder;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -41,12 +43,14 @@ public class ListFragment extends Fragment {
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 2;
-    View filter;
+    View filter, empty;
     Spinner color, brand, price;
     GridView gridView;
     ArrayAdapter ColorAdapter, PriceAdapter, BrandAdapter;
+    String selectedbrand, selectedprice, selectedcolor;
     FirebaseStorage fs;
     FirebaseFirestore db;
+    CollectionReference cf;
     StorageReference storageReference;
 
     /**
@@ -64,11 +68,124 @@ public class ListFragment extends Fragment {
         
     }
 
+    public void setList(String brand, String price, String color, ListAdapter listAdapter, CollectionReference cf){
+        listAdapter.empty();
+        if (brand == null){
+            if (price == null){
+                if(color == null){
+                    cf.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            listAdapter.empty();
+                            for(QueryDocumentSnapshot document : task.getResult()){
+                                listAdapter.addItem(new shoes(document.getId(), document.get("name").toString(), document.get("brand").toString(), document.get("image").toString(), Integer.parseInt(document.get("price").toString())));
+                                listAdapter.notifyDataSetChanged();
+                            }
+                        }
+                    });
+                }
+                else{
+                    cf.whereArrayContains("color", color).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            listAdapter.empty();
+                            for(QueryDocumentSnapshot document : task.getResult()){
+                                listAdapter.addItem(new shoes(document.getId(), document.get("name").toString(), document.get("brand").toString(), document.get("image").toString(), Integer.parseInt(document.get("price").toString())));
+                                listAdapter.notifyDataSetChanged();
+                            }
+                        }
+                    });
+                }
+            }
+            else{
+                if(color == null){
+                    cf.whereEqualTo("price", Integer.parseInt(price)).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            listAdapter.empty();
+                            for(QueryDocumentSnapshot document : task.getResult()){
+                                listAdapter.addItem(new shoes(document.getId(), document.get("name").toString(), document.get("brand").toString(), document.get("image").toString(), Integer.parseInt(document.get("price").toString())));
+                                listAdapter.notifyDataSetChanged();
+                            }
+                        }
+                    });
+                }
+                else{
+                    cf.whereArrayContains("color", color).whereEqualTo("price", Integer.parseInt(price)).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            listAdapter.empty();
+                            for(QueryDocumentSnapshot document : task.getResult()){
+                                listAdapter.addItem(new shoes(document.getId(), document.get("name").toString(), document.get("brand").toString(), document.get("image").toString(), Integer.parseInt(document.get("price").toString())));
+                                listAdapter.notifyDataSetChanged();
+                            }
+                        }
+                    });
+                }
+            }
+        }
+        else{
+            if (price == null){
+                if(color == null){
+                    cf.whereEqualTo("brand", brand).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            for(QueryDocumentSnapshot document : task.getResult()){
+                                listAdapter.addItem(new shoes(document.getId(), document.get("name").toString(), document.get("brand").toString(), document.get("image").toString(), Integer.parseInt(document.get("price").toString())));
+                                listAdapter.notifyDataSetChanged();
+                            }
+                        }
+                    });
+                }
+                else{
+                    cf.whereArrayContains("color", color).whereEqualTo("brand", brand).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            for(QueryDocumentSnapshot document : task.getResult()){
+                                listAdapter.addItem(new shoes(document.getId(), document.get("name").toString(), document.get("brand").toString(), document.get("image").toString(), Integer.parseInt(document.get("price").toString())));
+                                listAdapter.notifyDataSetChanged();
+                            }
+                        }
+                    });
+                }
+            }
+            else{
+                if(color == null){
+                    cf.whereEqualTo("price", Integer.parseInt(price)).whereEqualTo("brand", brand).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            for(QueryDocumentSnapshot document : task.getResult()){
+                                listAdapter.addItem(new shoes(document.getId(), document.get("name").toString(), document.get("brand").toString(), document.get("image").toString(), Integer.parseInt(document.get("price").toString())));
+                                listAdapter.notifyDataSetChanged();
+                            }
+                        }
+                    });
+                }
+                else{
+                    cf.whereEqualTo("price", Integer.parseInt(price)).whereArrayContains("color", color).whereEqualTo("brand", brand).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            for(QueryDocumentSnapshot document : task.getResult()){
+                                listAdapter.addItem(new shoes(document.getId(), document.get("name").toString(), document.get("brand").toString(), document.get("image").toString(), Integer.parseInt(document.get("price").toString())));
+                                listAdapter.notifyDataSetChanged();
+                            }
+                        }
+                    });
+                }
+            }
+
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_list, container, false);
         filter = view.findViewById(R.id.filter);
+
+        selectedbrand = null;
+        selectedcolor = null;
+        selectedprice = null;
 
         color = (Spinner) filter.findViewById(R.id.select_color);
         brand = (Spinner) filter.findViewById(R.id.select_brand);
@@ -77,6 +194,8 @@ public class ListFragment extends Fragment {
         gridView = (GridView) view.findViewById(R.id.list);
         ListAdapter listAdapter = new ListAdapter(getActivity());
         gridView.setAdapter(listAdapter);
+        empty = view.findViewById(R.id.empty_view) ;
+        gridView.setEmptyView(empty);
 
         ColorAdapter = ArrayAdapter.createFromResource(getActivity(), R.array.color, R.layout.support_simple_spinner_dropdown_item);
         BrandAdapter = ArrayAdapter.createFromResource(getActivity(), R.array.brand, R.layout.support_simple_spinner_dropdown_item);
@@ -87,13 +206,14 @@ public class ListFragment extends Fragment {
         price.setAdapter(PriceAdapter);
 
         db = FirebaseFirestore.getInstance();
-        db.collection("shose").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        cf = db.collection("shose");
+        cf.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if(task.isSuccessful()){
                     for(QueryDocumentSnapshot document : task.getResult()){
                         Log.d("check", "shoese" + document.get("name"));
-                        listAdapter.addItem(new shoes(document.get("name").toString(), document.get("brand").toString(), document.get("image").toString(), Integer.parseInt(document.get("price").toString())));
+                        listAdapter.addItem(new shoes(document.getId(), document.get("name").toString(), document.get("brand").toString(), document.get("image").toString(), Integer.parseInt(document.get("price").toString())));
                         listAdapter.notifyDataSetChanged();
                     }
                 }
@@ -102,97 +222,65 @@ public class ListFragment extends Fragment {
                 }
             }
         });
-        fs = FirebaseStorage.getInstance();
-        storageReference = fs.getReference();
 
        color.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
            @Override
            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                db.collection("shose").whereArrayContains("color",color.getItemAtPosition(i)).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if(task.isSuccessful()){
-                            listAdapter.empty();
-                            for(QueryDocumentSnapshot document : task.getResult()){
-                                listAdapter.addItem(new shoes(document.get("name").toString(), document.get("brand").toString(), document.get("image").toString(), Integer.parseInt(document.get("price").toString())));
-                                listAdapter.notifyDataSetChanged();
-                            }
-                        }
-                        else{
-                            Toast.makeText(getActivity(), "Network DB Error!",Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-
+               if (i == 0){
+                        selectedcolor = null;
+                        setList(selectedbrand, selectedprice, selectedcolor, listAdapter, cf);
+               }
+               else {
+                        selectedcolor = color.getItemAtPosition(i).toString();
+                        setList(selectedbrand, selectedprice, selectedcolor, listAdapter, cf);
+               }
            }
 
            @Override
            public void onNothingSelected(AdapterView<?> adapterView) {
-
+                selectedcolor = null;
            }
        });
+
        brand.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
            @Override
            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                if(i==0){
-
+                    selectedbrand = null;
+                    setList(selectedbrand, selectedprice, selectedcolor, listAdapter, cf);
                }
                else {
-                   db.collection("shose").whereEqualTo("brand", brand.getItemAtPosition(i)).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                       @Override
-                       public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                           if (task.isSuccessful()) {
-                               listAdapter.empty();
-                               for (QueryDocumentSnapshot document : task.getResult()) {
-                                   listAdapter.addItem(new shoes(document.get("name").toString(), document.get("brand").toString(), document.get("image").toString(), Integer.parseInt(document.get("price").toString())));
-                                   listAdapter.notifyDataSetChanged();
-                               }
-                           } else {
-                               Toast.makeText(getActivity(), "Network DB Error!", Toast.LENGTH_SHORT).show();
-                           }
-                       }
-                   }
-                   );
+                    selectedbrand = brand.getItemAtPosition(i).toString();
+                    setList(selectedbrand, selectedprice, selectedcolor, listAdapter, cf);
                }
            }
 
            @Override
            public void onNothingSelected(AdapterView<?> adapterView) {
-
+                selectedbrand = null;
            }
        });
        price.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
            @Override
            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                if(i==0){
-
+                   selectedprice = null;
+                   setList(selectedbrand, selectedprice, selectedcolor, listAdapter, cf);
                }
                else{
-                   db.collection("shose").whereLessThanOrEqualTo("price", price.getItemAtPosition(i)).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                       @Override
-                       public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                           if (task.isSuccessful()) {
-                               listAdapter.empty();
-                               for (QueryDocumentSnapshot document : task.getResult()) {
-                                   listAdapter.addItem(new shoes(document.get("name").toString(), document.get("brand").toString(), document.get("image").toString(), Integer.parseInt(document.get("price").toString())));
-                                   listAdapter.notifyDataSetChanged();
-                               }
-                           } else {
-                               Toast.makeText(getActivity(), "Network DB Error!", Toast.LENGTH_SHORT).show();
-                           }
-                       }
-                   }
-                   );
+                   selectedprice = Integer.toString(i);
+                   setList(selectedbrand, selectedprice, selectedcolor, listAdapter, cf);
                }
 
            }
 
            @Override
            public void onNothingSelected(AdapterView<?> adapterView) {
-
+                selectedprice = null;
            }
        });
 
         return view;
     }
+
 }
